@@ -1,15 +1,21 @@
 {
-  "name": "Scout Compass Premium",
-  "short_name": "Compass",
+  "name": "Scout Toolkit Pro",
+  "short_name": "Scout Tools",
+  "description": "Ultimate offline navigation and survival toolkit for Rovers and Scouts.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#121212",
-  "description": "A premium tactical offline compass for Scouts.",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
