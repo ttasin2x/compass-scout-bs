@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Scout Compass</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#ffffff">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -14,57 +14,63 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: radial-gradient(circle, #2b2b2b, #121212);
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f6; /* Premium soft off-white */
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             overflow: hidden;
         }
+        
         .header {
             position: absolute;
-            top: 20px;
+            top: 40px;
             text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #d4af37; /* Premium Gold */
+            letter-spacing: 1.5px;
+            color: #2c3e50;
         }
-        /* Premium Compass Dial */
+        .header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Premium Light Compass Dial */
         .compass-outer {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 320px;
             border-radius: 50%;
-            border: 10px solid #1a1a1a;
-            background: #222;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.8);
+            background: #ffffff;
+            /* Soft, premium multi-layered shadow */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08), 
+                        0 0 0 12px rgba(255,255,255,0.8),
+                        inset 0 4px 10px rgba(0,0,0,0.03);
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .compass-inner {
             position: absolute;
-            width: 260px;
-            height: 260px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
-            border: 2px dashed #555;
+            border: 1px solid #eaeaea;
             transition: transform 0.1s ease-out;
         }
-        .direction-marks {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
+        
         .mark {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            font-weight: bold;
-            font-size: 20px;
+            font-weight: 700;
+            font-size: 22px;
+            color: #95a5a6;
         }
-        .n { top: 10px; color: #e74c3c; }
-        .s { bottom: 10px; color: #fff; }
-        .e { top: 50%; right: 15px; transform: translateY(-50%); color: #fff; }
-        .w { top: 50%; left: 15px; transform: translateY(-50%); color: #fff; }
+        .n { top: 15px; color: #ff3b30; font-size: 26px; } /* Apple Red for North */
+        .s { bottom: 15px; }
+        .e { top: 50%; right: 20px; transform: translateY(-50%); }
+        .w { top: 50%; left: 20px; transform: translateY(-50%); }
         
         .needle-container {
             position: absolute;
@@ -80,9 +86,10 @@
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 120px solid #e74c3c;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 130px solid #ff3b30; /* Premium Red */
+            filter: drop-shadow(0 -4px 4px rgba(255, 59, 48, 0.3));
         }
         .needle-south {
             position: absolute;
@@ -91,61 +98,84 @@
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 120px solid #ecf0f1;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 130px solid #bdc3c7; /* Silver */
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
         }
         .center-pin {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #d4af37;
+            width: 28px;
+            height: 28px;
+            background: #ffffff;
             border-radius: 50%;
             z-index: 10;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            border: 4px solid #1a1a1a;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border: 6px solid #2c3e50;
         }
         
         /* Information Readout */
         .info-panel {
-            margin-top: 40px;
+            margin-top: 60px;
             text-align: center;
-            background: rgba(0,0,0,0.5);
-            padding: 15px 30px;
-            border-radius: 15px;
-            border: 1px solid #333;
+            background: #ffffff;
+            padding: 20px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-        .heading-text { font-size: 40px; font-weight: bold; margin: 0; color: #d4af37; }
-        .cardinal-text { font-size: 20px; color: #aaa; margin-top: 5px; }
+        .heading-text { 
+            font-size: 48px; 
+            font-weight: 800; 
+            margin: 0; 
+            color: #2c3e50; 
+            letter-spacing: -1px;
+        }
+        .cardinal-text { 
+            font-size: 18px; 
+            font-weight: 600;
+            color: #7f8c8d; 
+            margin-top: 2px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
         /* Buttons */
         .btn-group {
             position: absolute;
-            bottom: 30px;
+            bottom: 40px;
             display: flex;
             gap: 15px;
         }
         button {
-            background: #d4af37;
-            color: #121212;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
+            background: #ffffff;
+            color: #2c3e50;
+            border: 1px solid #e0e0e0;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
         }
-        button:active { transform: scale(0.95); }
-        #installBtn { display: none; background: #27ae60; color: white; }
-        #startBtn { display: none; } /* iPhone er jonno */
+        button:active { 
+            transform: scale(0.96); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        #installBtn { 
+            display: none; 
+            background: #007aff; /* Apple Blue */
+            color: white; 
+            border: none;
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+        #startBtn { display: none; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h3 style="margin: 0;">Scout Compass</h3>
+        <h3>Scout Compass</h3>
     </div>
 
     <div class="compass-outer">
@@ -169,18 +199,16 @@
 
     <div class="btn-group">
         <button id="startBtn">Calibrate Sensor</button>
-        <button id="installBtn">⬇ Download App</button>
+        <button id="installBtn">⬇ Install App</button>
     </div>
 
     <script>
         // --- COMPASS LOGIC ---
         const needle = document.getElementById('needle');
-        const compassRing = document.getElementById('compassRing');
         const degreeText = document.getElementById('degree');
         const cardinalText = document.getElementById('cardinal');
         const startBtn = document.getElementById('startBtn');
 
-        // Direction text logic
         function getDirectionText(degree) {
             if (degree >= 337.5 || degree < 22.5) return "North";
             if (degree >= 22.5 && degree < 67.5) return "North-East";
@@ -197,13 +225,11 @@
             if (compass !== null) {
                 let deg = Math.round(compass);
                 needle.style.transform = `rotate(${deg}deg)`;
-                // compassRing.style.transform = `rotate(${-deg}deg)`; // Ring ghurote chaile eta uncomment korun
                 degreeText.innerText = deg + '°';
                 cardinalText.innerText = getDirectionText(deg);
             }
         }
 
-        // Check iOS permission requirements
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             startBtn.style.display = 'block';
             startBtn.addEventListener('click', () => {
@@ -223,9 +249,7 @@
         // --- PWA / OFFLINE LOGIC ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(() => {
-                    console.log('Service Worker Registered');
-                });
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW setup failed', err));
             });
         }
 
@@ -236,7 +260,7 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'block'; // Show install button
+            installBtn.style.display = 'block';
         });
 
         installBtn.addEventListener('click', async () => {
