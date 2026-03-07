@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scout Compass</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #2b2b2b, #121212);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #d4af37; /* Premium Gold */
+        }
+        /* Premium Compass Dial */
+        .compass-outer {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 10px solid #1a1a1a;
+            background: #222;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .compass-inner {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            border: 2px dashed #555;
+            transition: transform 0.1s ease-out;
+        }
+        .direction-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .mark {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .n { top: 10px; color: #e74c3c; }
+        .s { bottom: 10px; color: #fff; }
+        .e { top: 50%; right: 15px; transform: translateY(-50%); color: #fff; }
+        .w { top: 50%; left: 15px; transform: translateY(-50%); color: #fff; }
+        
+        .needle-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            transition: transform 0.1s ease-out;
+        }
+        .needle-north {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 120px solid #e74c3c;
+        }
+        .needle-south {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 120px solid #ecf0f1;
+        }
+        .center-pin {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #d4af37;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            border: 4px solid #1a1a1a;
+        }
+        
+        /* Information Readout */
+        .info-panel {
+            margin-top: 40px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            border-radius: 15px;
+            border: 1px solid #333;
+        }
+        .heading-text { font-size: 40px; font-weight: bold; margin: 0; color: #d4af37; }
+        .cardinal-text { font-size: 20px; color: #aaa; margin-top: 5px; }
+
+        /* Buttons */
+        .btn-group {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            background: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+        button:active { transform: scale(0.95); }
+        #installBtn { display: none; background: #27ae60; color: white; }
+        #startBtn { display: none; } /* iPhone er jonno */
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h3 style="margin: 0;">Scout Compass</h3>
+    </div>
+
+    <div class="compass-outer">
+        <div class="compass-inner" id="compassRing">
+            <div class="mark n">N</div>
+            <div class="mark s">S</div>
+            <div class="mark e">E</div>
+            <div class="mark w">W</div>
+        </div>
+        <div class="needle-container" id="needle">
+            <div class="needle-north"></div>
+            <div class="needle-south"></div>
+        </div>
+        <div class="center-pin"></div>
+    </div>
+
+    <div class="info-panel">
+        <div class="heading-text" id="degree">0°</div>
+        <div class="cardinal-text" id="cardinal">North</div>
+    </div>
+
+    <div class="btn-group">
+        <button id="startBtn">Calibrate Sensor</button>
+        <button id="installBtn">⬇ Download App</button>
+    </div>
+
+    <script>
+        // --- COMPASS LOGIC ---
+        const needle = document.getElementById('needle');
+        const compassRing = document.getElementById('compassRing');
+        const degreeText = document.getElementById('degree');
+        const cardinalText = document.getElementById('cardinal');
+        const startBtn = document.getElementById('startBtn');
+
+        // Direction text logic
+        function getDirectionText(degree) {
+            if (degree >= 337.5 || degree < 22.5) return "North";
+            if (degree >= 22.5 && degree < 67.5) return "North-East";
+            if (degree >= 67.5 && degree < 112.5) return "East";
+            if (degree >= 112.5 && degree < 157.5) return "South-East";
+            if (degree >= 157.5 && degree < 202.5) return "South";
+            if (degree >= 202.5 && degree < 247.5) return "South-West";
+            if (degree >= 247.5 && degree < 292.5) return "West";
+            if (degree >= 292.5 && degree < 337.5) return "North-West";
+        }
+
+        function handleOrientation(e) {
+            let compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+            if (compass !== null) {
+                let deg = Math.round(compass);
+                needle.style.transform = `rotate(${deg}deg)`;
+                // compassRing.style.transform = `rotate(${-deg}deg)`; // Ring ghurote chaile eta uncomment korun
+                degreeText.innerText = deg + '°';
+                cardinalText.innerText = getDirectionText(deg);
+            }
+        }
+
+        // Check iOS permission requirements
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            startBtn.style.display = 'block';
+            startBtn.addEventListener('click', () => {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                            startBtn.style.display = 'none';
+                        }
+                    }).catch(console.error);
+            });
+        } else {
+            window.addEventListener('deviceorientationabsolute', handleOrientation);
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        // --- PWA / OFFLINE LOGIC ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(() => {
+                    console.log('Service Worker Registered');
+                });
+            });
+        }
+
+        // --- INSTALL BUTTON LOGIC ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block'; // Show install button
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+    </script>
+</body>
+</html>
