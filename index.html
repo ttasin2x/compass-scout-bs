@@ -1,278 +1,672 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Scout Compass</title>
+    <title>🏕️ Ultimate Scout Toolkit</title>
+    
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
+
     <style>
-        * { box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: #f4f7f6; /* Premium soft off-white */
-            color: #333;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff; min-height: 100vh; display: flex; justify-content: center;
+            align-items: center; overflow-x: hidden; transition: all 0.5s ease;
         }
-        
-        .header {
-            position: absolute;
-            top: 40px;
-            text-align: center;
-            letter-spacing: 1.5px;
-            color: #2c3e50;
-        }
-        .header h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+        body.light-mode { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
-        /* Premium Light Compass Dial */
-        .compass-outer {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            border-radius: 50%;
-            background: #ffffff;
-            /* Soft, premium multi-layered shadow */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.08), 
-                        0 0 0 12px rgba(255,255,255,0.8),
-                        inset 0 4px 10px rgba(0,0,0,0.03);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .compass-inner {
-            position: absolute;
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            border: 1px solid #eaeaea;
-            transition: transform 0.1s ease-out;
-        }
-        
-        .mark {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: 700;
-            font-size: 22px;
-            color: #95a5a6;
-        }
-        .n { top: 15px; color: #ff3b30; font-size: 26px; } /* Apple Red for North */
-        .s { bottom: 15px; }
-        .e { top: 50%; right: 20px; transform: translateY(-50%); }
-        .w { top: 50%; left: 20px; transform: translateY(-50%); }
-        
-        .needle-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
-            transition: transform 0.1s ease-out;
-        }
-        .needle-north {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-bottom: 130px solid #ff3b30; /* Premium Red */
-            filter: drop-shadow(0 -4px 4px rgba(255, 59, 48, 0.3));
-        }
-        .needle-south {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 130px solid #bdc3c7; /* Silver */
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
-        }
-        .center-pin {
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            background: #ffffff;
-            border-radius: 50%;
-            z-index: 10;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            border: 6px solid #2c3e50;
-        }
-        
-        /* Information Readout */
-        .info-panel {
-            margin-top: 60px;
-            text-align: center;
-            background: #ffffff;
-            padding: 20px 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-        .heading-text { 
-            font-size: 48px; 
-            font-weight: 800; 
-            margin: 0; 
-            color: #2c3e50; 
-            letter-spacing: -1px;
-        }
-        .cardinal-text { 
-            font-size: 18px; 
-            font-weight: 600;
-            color: #7f8c8d; 
-            margin-top: 2px; 
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .container { text-align: center; padding: 15px; max-width: 500px; width: 100%; z-index: 1; position: relative; }
 
-        /* Buttons */
-        .btn-group {
-            position: absolute;
-            bottom: 40px;
-            display: flex;
-            gap: 15px;
+        /* Battery Status UI */
+        #batteryStatus {
+            position: absolute; top: 0px; right: 15px; background: rgba(0,0,0,0.5);
+            padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2); z-index: 100; backdrop-filter: blur(5px);
         }
-        button {
-            background: #ffffff;
-            color: #2c3e50;
-            border: 1px solid #e0e0e0;
-            padding: 14px 28px;
-            border-radius: 30px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-            transition: all 0.2s ease;
+        body.light-mode #batteryStatus { background: rgba(255,255,255,0.6); color: #333; border-color: rgba(255,255,255,0.8); }
+
+        .loading {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000; color: #fff;
+            transition: opacity 0.5s; backdrop-filter: blur(5px);
         }
-        button:active { 
-            transform: scale(0.96); 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        .loading.hidden { opacity: 0; pointer-events: none; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #2ecc71; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Compass UI */
+        .compass-wrapper {
+            position: relative; width: 280px; height: 280px; margin: 25px auto 15px;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 0 60px rgba(255,255,255,0.05);
+            display: flex; justify-content: center; align-items: center; transition: all 0.3s ease;
         }
-        #installBtn { 
-            display: none; 
-            background: #007aff; /* Apple Blue */
-            color: white; 
-            border: none;
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-        }
-        #startBtn { display: none; }
+        body.light-mode .compass-wrapper { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 0 60px rgba(255,255,255,0.2); }
+        .compass-wrapper.north-glow { box-shadow: 0 0 30px rgba(46, 204, 113, 0.6), inset 0 0 30px rgba(46, 204, 113, 0.3) !important; border-color: rgba(46, 204, 113, 0.8); }
+
+        .compass-face { position: relative; width: 240px; height: 240px; border-radius: 50%; background: linear-gradient(145deg, #2a2a3e, #1a1a2e); box-shadow: inset 0 5px 15px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; }
+        body.light-mode .compass-face { background: linear-gradient(145deg, #f0f0f0, #e0e0e0); }
+        .compass-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; }
+        .tick { position: absolute; width: 2px; height: 8px; background: #888; left: 50%; transform-origin: center 120px; transform: translateX(-50%); }
+        .tick.major { width: 3px; height: 12px; background: #aaa; }
+        body.light-mode .tick { background: #666; } body.light-mode .tick.major { background: #333; }
+        
+        .direction-label { position: absolute; font-weight: bold; font-size: 14px; color: #fff; transform-origin: center; z-index: 2; }
+        body.light-mode .direction-label { color: #333; }
+        .direction-n { top: 10px; left: 50%; transform: translateX(-50%); color: #e74c3c !important; font-size: 20px; }
+        .direction-s { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .direction-e { right: 15px; top: 50%; transform: translateY(-50%); }
+        .direction-w { left: 15px; top: 50%; transform: translateY(-50%); }
+        
+        .target-marker { position: absolute; top: 0; left: 50%; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 12px solid #f39c12; transform-origin: center 120px; transform: translateX(-50%) rotate(0deg); z-index: 15; display: none; filter: drop-shadow(0 0 5px rgba(243, 156, 18, 0.8)); }
+        
+        .compass-needle { position: absolute; width: 4px; height: 160px; transform-origin: center center; transition: transform 0.1s ease-out; z-index: 10; }
+        .needle-north { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 80px solid #e74c3c; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .needle-south { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 80px solid #95a5a6; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        body.light-mode .needle-south { border-top-color: #2c3e50; }
+        
+        .qibla-needle { position: absolute; width: 2px; height: 170px; transform-origin: center center; transition: transform 0.1s ease-out; z-index: 8; opacity: 0.9; }
+        .qibla-icon { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 16px; color: #2ecc71; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .center-pin { position: absolute; width: 14px; height: 14px; background: radial-gradient(circle, gold, #f39c12); border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.6); z-index: 20; }
+        
+        .degree-display { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); padding: 5px 12px; border-radius: 20px; font-size: 18px; font-weight: bold; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 25; min-width: 70px; border: 1px solid rgba(255,255,255,0.2); }
+        body.light-mode .degree-display { background: rgba(255,255,255,0.9); color: #2c3e50; border-color: transparent;}
+
+        .bubble-level { position: absolute; width: 35px; height: 35px; background: rgba(0,0,0,0.5); border-radius: 50%; top: -5px; right: -5px; border: 2px solid rgba(255,255,255,0.3); overflow: hidden; z-index: 30; }
+        body.light-mode .bubble-level { background: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.8); }
+        .bubble { width: 12px; height: 12px; background: radial-gradient(circle at 30% 30%, #fff, #888); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: transform 0.1s ease-out; }
+
+        .accuracy-indicator { position: absolute; top: -5px; left: -5px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; background: #e74c3c; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 30; border: 2px solid rgba(255,255,255,0.2); }
+        .accuracy-indicator.high { background: #2ecc71; } .accuracy-indicator.medium { background: #f39c12; }
+
+        /* TABS SYSTEM */
+        .tabs-nav { display: flex; gap: 4px; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 4px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .tabs-nav::-webkit-scrollbar { display: none; }
+        body.light-mode .tabs-nav { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
+        .tab-btn { flex: 1; padding: 6px 8px; border: none; background: transparent; color: #fff; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 15px; transition: 0.3s; min-width: 60px; }
+        .tab-btn.active { background: rgba(255,255,255,0.2); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        body.light-mode .tab-btn { color: #333; }
+        
+        .tab-content { display: none; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border-radius: 20px; padding: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin-bottom: 12px; text-align: left;}
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        body.light-mode .tab-content { background: rgba(255, 255, 255, 0.4); border-color: rgba(255,255,255,0.4); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* General UI Elements */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .info-item { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        body.light-mode .info-item { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.4); }
+        .info-label { font-size: 10px; text-transform: uppercase; color: #aaa; margin-bottom: 2px; }
+        body.light-mode .info-label { color: #555; }
+        .info-value { font-size: 14px; font-weight: bold; color: #fff; }
+        body.light-mode .info-value { color: #222; }
+        .full-width { grid-column: 1 / -1; }
+
+        .custom-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px; border-radius: 12px; font-weight: bold; outline: none; margin-bottom: 8px; text-align: center;}
+        body.light-mode .custom-input { background: rgba(255,255,255,0.8); color: #333; border-color: rgba(255,255,255,0.5); }
+        
+        .controls { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px;}
+        .btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(5px);}
+        body.light-mode .btn { background: rgba(255,255,255,0.4); color: #222; border-color: rgba(255,255,255,0.6); }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.active { background: rgba(46, 204, 113, 0.4); border-color: #2ecc71; color: #fff; }
+        .btn.danger { background: rgba(231, 76, 60, 0.4); border-color: #e74c3c; color: #fff;}
+
+        .heading-text { font-size: 22px; margin-bottom: 2px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5); text-align: left; padding-left: 10px;}
+        body.light-mode .heading-text { text-shadow: none; color: #222;}
+
+        .quote-container { font-style: italic; font-size: 12px; color: #bbb; min-height: 35px; margin-top: 10px; padding: 0 10px; transition: opacity 0.5s ease; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+        body.light-mode .quote-container { color: #444; text-shadow: none; }
+
+        /* Tools & Camera UI */
+        .clino-box { position: relative; height: 60px; background: rgba(0,0,0,0.4); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);}
+        body.light-mode .clino-box { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.6);}
+        .clino-line { width: 80%; height: 3px; background: #e74c3c; position: absolute; transition: transform 0.1s ease; box-shadow: 0 0 8px #e74c3c;}
+        .clino-text { z-index: 2; font-size: 20px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);}
+
+        #pathCanvas { width: 100%; height: 120px; background: rgba(0,0,0,0.5); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.3); margin-top: 5px; display: none; }
+        body.light-mode #pathCanvas { background: rgba(255,255,255,0.6); border-color: #888; }
+        
+        #camVideo { width: 100%; height: 200px; background: #000; border-radius: 12px; object-fit: cover; display: none; border: 2px solid rgba(255,255,255,0.2); margin-bottom: 10px;}
+
+        #sosScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: red; z-index: 9999; display: none; opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h3>Scout Compass</h3>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Scout Compass Pro</p>
+        <p id="loadingMsg" style="font-size: 13px; opacity: 0.8;">সেন্সর ক্যালিব্রেট হচ্ছে...</p>
     </div>
 
-    <div class="compass-outer">
-        <div class="compass-inner" id="compassRing">
-            <div class="mark n">N</div>
-            <div class="mark s">S</div>
-            <div class="mark e">E</div>
-            <div class="mark w">W</div>
+    <div id="sosScreen"></div>
+
+    <div class="container">
+        <div id="batteryStatus">🔋 --%</div>
+        
+        <h1 class="heading-text">🏕️ Scout Toolkit</h1>
+
+        <div class="compass-wrapper" id="compassWrapper">
+            <div class="accuracy-indicator" id="accuracyIndicator" title="Accuracy">📡</div>
+            <div class="bubble-level"><div class="bubble" id="bubble"></div></div>
+            <div class="compass-face">
+                <div class="compass-ring" id="compassRing"><div class="target-marker" id="targetMarker"></div></div>
+                <div class="direction-label direction-n">N</div><div class="direction-label direction-s">S</div>
+                <div class="direction-label direction-e">E</div><div class="direction-label direction-w">W</div>
+                <div class="degree-display" id="degreeDisplay">0°</div>
+                <div class="qibla-needle" id="qiblaNeedle"><div class="qibla-icon">🕋</div></div>
+                <div class="compass-needle" id="compassNeedle"><div class="needle-north"></div><div class="needle-south"></div></div>
+                <div class="center-pin"></div>
+            </div>
         </div>
-        <div class="needle-container" id="needle">
-            <div class="needle-north"></div>
-            <div class="needle-south"></div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('nav')">🧭 Nav</button>
+            <button class="tab-btn" onclick="switchTab('weather')">🌦️ Track</button>
+            <button class="tab-btn" onclick="switchTab('emergency')">🚨 SOS</button>
+            <button class="tab-btn" onclick="switchTab('tools')">📐 Tools</button>
+            <button class="tab-btn" onclick="switchTab('cam')">📷 Cam</button>
         </div>
-        <div class="center-pin"></div>
-    </div>
 
-    <div class="info-panel">
-        <div class="heading-text" id="degree">0°</div>
-        <div class="cardinal-text" id="cardinal">North</div>
-    </div>
+        <div id="tab-nav" class="tab-content active">
+            <div class="info-grid">
+                <div class="info-item full-width" style="display: flex; gap: 8px;">
+                    <input type="number" id="targetInput" class="custom-input" style="margin:0;" placeholder="Set Target (0-360°)" min="0" max="360" oninput="if(this.value > 360) this.value = 360; if(this.value < 0) this.value = 0;">
+                    <button class="btn" style="border-radius: 12px;" onclick="setTarget()">Set</button>
+                </div>
+                <div class="info-item full-width" style="background: rgba(46, 204, 113, 0.15); border-color: rgba(46, 204, 113, 0.3);">
+                    <div class="info-label" style="color: #2ecc71;">📍 GPS Coordinates & Qibla</div>
+                    <div class="info-value" id="coordsValue">Locating...</div>
+                    <div style="font-size: 12px; color: #f1c40f; margin-top: 2px;" id="qiblaValue">Qibla: --°</div>
+                </div>
+                <div class="info-item"><div class="info-label">🌅 Sunrise</div><div class="info-value" id="sunriseVal">--:--</div></div>
+                <div class="info-item"><div class="info-label">🌇 Sunset</div><div class="info-value" id="sunsetVal">--:--</div></div>
+                <div class="info-item"><div class="info-label">⛰️ Altitude</div><div class="info-value" id="altitudeValue">-- m</div></div>
+                <div class="info-item"><div class="info-label">🚶 Speed</div><div class="info-value" id="speedValue">0 km/h</div></div>
+                <div class="full-width" style="text-align: center; font-size: 10px; color: #888;" id="declinationInfo">Magnetic declination: Calculating...</div>
+            </div>
+        </div>
 
-    <div class="btn-group">
-        <button id="startBtn">Calibrate Sensor</button>
-        <button id="installBtn">⬇ Install App</button>
+        <div id="tab-weather" class="tab-content">
+            <div class="info-grid">
+                <div class="info-item"><div class="info-label">🌡️ Temperature</div><div class="info-value" id="tempVal">-- °C</div></div>
+                <div class="info-item"><div class="info-label">💨 Wind Speed</div><div class="info-value" id="windVal">-- km/h</div></div>
+                
+                <div class="info-item full-width" style="background: rgba(52, 152, 219, 0.15); border-color: rgba(52, 152, 219, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div class="info-label" style="color: #3498db; margin:0;">⛺ Trip & Steps</div>
+                        <button class="btn" id="trackBtn" onclick="toggleTracking()" style="padding: 4px 10px;">Start</button>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="info-value" id="trackVal" style="font-size:18px;">0.00 <span style="font-size:10px">km</span></div>
+                        <div class="info-value" id="stepCountVal" style="font-size:18px;">0 <span style="font-size:10px">steps</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-emergency" class="tab-content">
+            <button class="btn danger" style="width: 100%; margin-bottom: 10px; padding: 12px; font-size:14px;" onclick="sendSOS_SMS()">
+                📲 Send Emergency SMS
+            </button>
+
+            <button class="btn custom-input" style="background:rgba(231, 76, 60, 0.2); border-color:#e74c3c;" id="whistleBtn" onclick="toggleWhistle()">🔊 Loud Siren (Whistle)</button>
+            
+            <div style="margin-top: 10px;">
+                <div class="info-label" style="text-align: center; margin-bottom: 5px;">Morse Code Signal</div>
+                <input type="text" id="morseInput" class="custom-input" placeholder="Type SOS, HELP..." maxlength="15">
+                
+                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 10px; font-size: 13px; color: #ddd;">
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="morseLightToggle" checked style="accent-color: #f1c40f;"> <span class="theme-text">🔦 Flash</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="morseSoundToggle" checked style="accent-color: #f1c40f;"> <span class="theme-text">🔊 Sound</span>
+                    </label>
+                </div>
+                <button class="btn" id="morseActionBtn" style="width: 100%; border-color: #f1c40f; color: #f1c40f;" onclick="toggleMorse()">📡 Transmit Signal</button>
+            </div>
+        </div>
+
+        <div id="tab-tools" class="tab-content">
+            <div class="info-label" style="text-align: center;">📐 Clinometer</div>
+            <div class="clino-box" style="margin-bottom: 15px;">
+                <div class="clino-line" id="clinoLine"></div>
+                <div class="clino-text" id="clinoText">0°</div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px dashed rgba(255,255,255,0.2); margin: 10px 0;">
+
+            <div class="info-label" style="text-align: center; color: #3498db;">🗺️ GPS Path Tracker</div>
+            <div class="controls" style="margin-bottom: 5px;">
+                <button class="btn" id="startPathBtn" onclick="togglePathTracking()">▶️ Record</button>
+                <button class="btn" id="viewPathBtn" onclick="viewPath()" disabled>👁️ View</button>
+            </div>
+            <p id="pathStatus" style="font-size: 10px; text-align: center; color: #f39c12;">Status: Not tracking</p>
+            
+            <canvas id="pathCanvas" width="300" height="150"></canvas>
+            <div id="mapLegend" style="display:none; justify-content:center; gap:15px; font-size:10px; margin-top:5px;">
+                <span style="color: #3498db;">🔵 Start</span><span style="color: #e74c3c;">🔴 End</span>
+            </div>
+        </div>
+
+        <div id="tab-cam" class="tab-content">
+            <div class="info-label" style="text-align: center; margin-bottom: 5px;">Survival Mirror & Magnifier</div>
+            <p style="font-size: 10px; text-align: center; color: #aaa; margin-bottom: 10px;">Use front cam as mirror to check injuries, or back cam to zoom maps.</p>
+            
+            <video id="camVideo" autoplay playsinline></video>
+            
+            <div class="controls">
+                <button class="btn" onclick="startCamera('user')">🪞 Mirror (Front)</button>
+                <button class="btn" onclick="startCamera('environment')">🔍 Mag (Back)</button>
+                <button class="btn danger" onclick="stopCamera()">🛑 Stop</button>
+            </div>
+        </div>
+
+        <div class="controls" style="margin-top:15px;">
+            <button class="btn" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+            <button class="btn" style="border-color: #f39c12; color: #f39c12;" onclick="calibrate()">🎯 Calibrate</button>
+            <button class="btn" id="lockBtn" onclick="toggleLock()">🔓 Lock</button>
+            <button class="btn" id="installAppBtn" style="display: none; border-color: #3498db; color: #3498db;" onclick="installPWA()">⬇️ Install App</button>
+        </div>
+
+        <div class="quote-container" id="quoteText">
+            "পৃথিবীকে যেমন পেয়েছ, তার চেয়ে একটু ভালো রেখে যাওয়ার চেষ্টা করো।"
+        </div>
     </div>
 
     <script>
-        // --- COMPASS LOGIC ---
-        const needle = document.getElementById('needle');
-        const degreeText = document.getElementById('degree');
-        const cardinalText = document.getElementById('cardinal');
-        const startBtn = document.getElementById('startBtn');
+        // System & Sensor Variables
+        let currentHeading = 0, targetHeading = 0, userTargetAzimuth = null, qiblaBearing = null;
+        let isLocked = false, isDarkMode = true;
+        let currentBeta = 0, targetBeta = 0, currentGamma = 0, targetGamma = 0;
+        
+        // Tracking & Pedometer Variables
+        let isTracking = false, trackDist = 0, lastPos = null;
+        let steps = 0, lastAccel = 0;
+        let pathCoords = [], isPathTracking = false;
 
-        function getDirectionText(degree) {
-            if (degree >= 337.5 || degree < 22.5) return "North";
-            if (degree >= 22.5 && degree < 67.5) return "North-East";
-            if (degree >= 67.5 && degree < 112.5) return "East";
-            if (degree >= 112.5 && degree < 157.5) return "South-East";
-            if (degree >= 157.5 && degree < 202.5) return "South";
-            if (degree >= 202.5 && degree < 247.5) return "South-West";
-            if (degree >= 247.5 && degree < 292.5) return "West";
-            if (degree >= 292.5 && degree < 337.5) return "North-West";
-        }
+        // Audio, Morse & Camera Variables
+        let audioCtx, whistleOsc, isWhistling = false, isMorsing = false;
+        let currentStream = null;
 
-        function handleOrientation(e) {
-            let compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
-            if (compass !== null) {
-                let deg = Math.round(compass);
-                needle.style.transform = `rotate(${deg}deg)`;
-                degreeText.innerText = deg + '°';
-                cardinalText.innerText = getDirectionText(deg);
-            }
-        }
+        // NEW: PWA Install Variable
+        let deferredPrompt;
 
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            startBtn.style.display = 'block';
-            startBtn.addEventListener('click', () => {
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response == 'granted') {
-                            window.addEventListener('deviceorientation', handleOrientation);
-                            startBtn.style.display = 'none';
-                        }
-                    }).catch(console.error);
-            });
-        } else {
-            window.addEventListener('deviceorientationabsolute', handleOrientation);
-            window.addEventListener('deviceorientation', handleOrientation);
-        }
+        const quotes = [
+            "\"পৃথিবীকে যেমন পেয়েছ, তার চেয়ে একটু ভালো রেখে যাওয়ার চেষ্টা করো।\" - ব্যাডেন পাওয়েল",
+            "\"স্কাউটদের সম্মান নির্ভরযোগ্য।\" - স্কাউট আইন",
+            "\"প্রস্তুত থাকো (Be Prepared)\" - স্কাউট মটো"
+        ];
 
-        // --- PWA / OFFLINE LOGIC ---
+        // Init PWA Service Worker & Install Prompt
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW setup failed', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('PWA not configured or running on localhost/file.'));
             });
         }
 
-        // --- INSTALL BUTTON LOGIC ---
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
         window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
+            // Stash the event so it can be triggered later.
             deferredPrompt = e;
-            installBtn.style.display = 'block';
+            // Update UI notify the user they can install the PWA
+            document.getElementById('installAppBtn').style.display = 'inline-block';
         });
 
-        installBtn.addEventListener('click', async () => {
+        window.addEventListener('appinstalled', () => {
+            // Hide the app-provided install promotion
+            document.getElementById('installAppBtn').style.display = 'none';
+            deferredPrompt = null;
+            console.log('PWA was installed');
+        });
+
+        async function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
                 }
                 deferredPrompt = null;
+                document.getElementById('installAppBtn').style.display = 'none';
             }
-        });
+        }
+
+        function initApp() {
+            generateTicks();
+            setupQuotes();
+            initBattery();
+            
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                document.getElementById('loadingMsg').textContent = "Screen এ ট্যাপ করে বা Calibrate এ ক্লিক করে শুরু করুন";
+                document.getElementById('loading').addEventListener('click', calibrate);
+            } else {
+                startSensors();
+                setTimeout(() => document.getElementById('loading').classList.add('hidden'), 1500);
+            }
+            animateCompass();
+        }
+
+        function initBattery() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(function(battery) {
+                    updateBattery(battery);
+                    battery.addEventListener('levelchange', () => updateBattery(battery));
+                });
+            } else {
+                document.getElementById('batteryStatus').style.display = 'none';
+            }
+        }
+        function updateBattery(b) {
+            const lvl = Math.round(b.level * 100);
+            document.getElementById('batteryStatus').textContent = `🔋 ${lvl}%`;
+            if (lvl <= 15 && !isDarkMode) {
+                toggleTheme(); 
+                alert("Battery Low! Auto-switched to Dark Mode to save power.");
+            }
+        }
+
+        function generateTicks() {
+            const ring = document.getElementById('compassRing');
+            for (let i = 0; i < 360; i += 5) {
+                const tick = document.createElement('div');
+                tick.className = i % 30 === 0 ? 'tick major' : 'tick';
+                tick.style.transform = `translateX(-50%) rotate(${i}deg)`;
+                ring.appendChild(tick);
+            }
+        }
+
+        function setupQuotes() {
+            let qIndex = 0; const qt = document.getElementById('quoteText');
+            setInterval(() => {
+                qt.style.opacity = 0;
+                setTimeout(() => { qIndex = (qIndex + 1) % quotes.length; qt.textContent = quotes[qIndex]; qt.style.opacity = 1; }, 500);
+            }, 8000);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if(tabName !== 'cam') stopCamera();
+        }
+
+        function animateCompass() {
+            if (!isLocked) {
+                const diff = targetHeading - currentHeading;
+                if (Math.abs(diff) > 180) { if (diff > 0) currentHeading += 360; else currentHeading -= 360; }
+                currentHeading += (targetHeading - currentHeading) * 0.1;
+                let displayHeading = Math.round(currentHeading % 360);
+                if (displayHeading < 0) displayHeading += 360;
+
+                document.getElementById('compassNeedle').style.transform = `rotate(${-currentHeading}deg)`;
+                document.getElementById('degreeDisplay').textContent = `${displayHeading}°`;
+                if (qiblaBearing !== null) document.getElementById('qiblaNeedle').style.transform = `rotate(${qiblaBearing - currentHeading}deg)`;
+
+                const targetMarker = document.getElementById('targetMarker');
+                if (userTargetAzimuth !== null) {
+                    const azimuthDiff = Math.abs(displayHeading - userTargetAzimuth);
+                    targetMarker.style.borderTopColor = (azimuthDiff < 3 || azimuthDiff > 357) ? '#2ecc71' : '#f39c12';
+                }
+                
+                const wrapper = document.getElementById('compassWrapper');
+                if (displayHeading > 355 || displayHeading < 5) wrapper.classList.add('north-glow');
+                else wrapper.classList.remove('north-glow');
+
+                currentBeta += (targetBeta - currentBeta) * 0.1; currentGamma += (targetGamma - currentGamma) * 0.1;
+                let tiltX = (Math.max(-90, Math.min(90, currentGamma)) / 90) * 15;
+                let tiltY = (Math.max(-90, Math.min(90, currentBeta)) / 90) * 15;
+                document.getElementById('bubble').style.transform = `translate(calc(-50% + ${tiltX}px), calc(-50% + ${tiltY}px))`;
+
+                document.getElementById('clinoLine').style.transform = `rotate(${-currentBeta}deg)`;
+                document.getElementById('clinoText').textContent = Math.round(currentBeta) + '°';
+            }
+            requestAnimationFrame(animateCompass);
+        }
+
+        function handleOrientation(event) {
+            if (event.webkitCompassHeading !== undefined) targetHeading = event.webkitCompassHeading;
+            else if (event.alpha !== null) targetHeading = 360 - event.alpha;
+            if (event.beta !== null && event.gamma !== null) { targetBeta = event.beta; targetGamma = event.gamma; }
+            
+            const accuracy = event.webkitCompassAccuracy || 10;
+            const ind = document.getElementById('accuracyIndicator');
+            if (accuracy < 5) { ind.className = 'accuracy-indicator high'; ind.innerHTML = '🎯'; }
+            else if (accuracy < 15) { ind.className = 'accuracy-indicator medium'; ind.innerHTML = '⚡'; }
+            else { ind.className = 'accuracy-indicator'; ind.innerHTML = '📡'; }
+        }
+
+        function handleMotion(event) {
+            if(!isTracking) return;
+            let acc = event.accelerationIncludingGravity;
+            if(!acc) return;
+            let magnitude = Math.sqrt(acc.x*acc.x + acc.y*acc.y + acc.z*acc.z);
+            let delta = magnitude - lastAccel;
+            if(delta > 1.2 && magnitude > 10.5) { 
+                steps++; 
+                document.getElementById('stepCountVal').innerHTML = `${steps} <span style="font-size:10px">steps</span>`;
+            }
+            lastAccel = magnitude;
+        }
+
+        function calculateQibla(lat, lon) {
+            const rLat = lat * (Math.PI / 180), rLon = lon * (Math.PI / 180);
+            const y = Math.sin((39.8262 * Math.PI / 180) - rLon);
+            const x = Math.cos(rLat) * Math.tan(21.4225 * Math.PI / 180) - Math.sin(rLat) * Math.cos((39.8262 * Math.PI / 180) - rLon);
+            return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const p = 0.017453292519943295;
+            const a = 0.5 - Math.cos((lat2 - lat1) * p)/2 + Math.cos(lat1 * p) * Math.cos(lat2 * p) * (1 - Math.cos((lon2 - lon1) * p))/2;
+            return 12742 * Math.asin(Math.sqrt(a)); 
+        }
+
+        function handlePosition(position) {
+            const lat = position.coords.latitude, lon = position.coords.longitude;
+            document.getElementById('coordsValue').textContent = `${lat.toFixed(5)}°, ${lon.toFixed(5)}°`;
+            if (position.coords.altitude) document.getElementById('altitudeValue').textContent = `${Math.round(position.coords.altitude)} m`;
+            if (position.coords.speed !== null && !isNaN(position.coords.speed)) document.getElementById('speedValue').textContent = `${(position.coords.speed * 3.6).toFixed(1)} km/h`;
+            
+            qiblaBearing = calculateQibla(lat, lon);
+            document.getElementById('qiblaValue').textContent = `Qibla: ${Math.round(qiblaBearing)}°`;
+            const declination = Math.round((lon / 10) + (lat / 20));
+            document.getElementById('declinationInfo').textContent = `Magnetic declination: ~${declination}° (True North adjustment)`;
+
+            if(isTracking && lastPos) {
+                trackDist += getDistance(lastPos.lat, lastPos.lon, lat, lon);
+                document.getElementById('trackVal').innerHTML = `${trackDist.toFixed(2)} <span style="font-size:10px">km</span>`;
+            }
+            lastPos = {lat, lon};
+
+            if (isPathTracking) {
+                pathCoords.push({lat, lon});
+                document.getElementById('pathStatus').textContent = `Recording... (${pathCoords.length} points saved)`;
+            }
+        }
+
+        function sendSOS_SMS() {
+            if(!lastPos) return alert("Location not found yet! Please wait for GPS.");
+            const msg = `Emergency! I need help. My current location is:\nLat: ${lastPos.lat.toFixed(5)}, Lon: ${lastPos.lon.toFixed(5)}.\nGoogle Maps: http://maps.google.com/maps?q=${lastPos.lat},${lastPos.lon}`;
+            window.open(`sms:?body=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        async function startCamera(mode) {
+            stopCamera();
+            const video = document.getElementById('camVideo');
+            video.style.display = 'block';
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode } });
+                video.srcObject = currentStream;
+            } catch(e) {
+                alert("Camera access denied or unavailable on this device.");
+                video.style.display = 'none';
+            }
+        }
+        function stopCamera() {
+            if(currentStream) { currentStream.getTracks().forEach(t=>t.stop()); currentStream = null; }
+            document.getElementById('camVideo').srcObject = null;
+            document.getElementById('camVideo').style.display = 'none';
+        }
+
+        function togglePathTracking() {
+            const btn = document.getElementById('startPathBtn');
+            const viewBtn = document.getElementById('viewPathBtn');
+            const status = document.getElementById('pathStatus');
+            isPathTracking = !isPathTracking;
+            if (isPathTracking) {
+                btn.innerHTML = '⏹️ Stop'; btn.classList.add('danger'); pathCoords = [];
+                document.getElementById('pathCanvas').style.display = 'none';
+                document.getElementById('mapLegend').style.display = 'none';
+                viewBtn.disabled = true; status.textContent = 'Recording path...';
+            } else {
+                btn.innerHTML = '▶️ Record'; btn.classList.remove('danger');
+                if(pathCoords.length > 1) { viewBtn.disabled = false; status.textContent = `Saved! (${pathCoords.length} pts)`; } 
+                else { status.textContent = 'Not enough movement.'; }
+            }
+        }
+
+        function viewPath() {
+            const canvas = document.getElementById('pathCanvas'); const ctx = canvas.getContext('2d');
+            canvas.style.display = 'block'; document.getElementById('mapLegend').style.display = 'flex';
+            if (pathCoords.length < 2) return;
+            const rect = canvas.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let minLat = pathCoords[0].lat, maxLat = pathCoords[0].lat, minLon = pathCoords[0].lon, maxLon = pathCoords[0].lon;
+            for (let p of pathCoords) {
+                if(p.lat < minLat) minLat = p.lat; if(p.lat > maxLat) maxLat = p.lat;
+                if(p.lon < minLon) minLon = p.lon; if(p.lon > maxLon) maxLon = p.lon;
+            }
+            const pad = 15, w = canvas.width - pad*2, h = canvas.height - pad*2;
+            const latDiff = maxLat - minLat || 0.00001, lonDiff = maxLon - minLon || 0.00001;
+            
+            ctx.beginPath(); ctx.strokeStyle = '#2ecc71'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            for (let i = 0; i < pathCoords.length; i++) {
+                const x = pad + ((pathCoords[i].lon - minLon) / lonDiff) * w;
+                const y = pad + (h - ((pathCoords[i].lat - minLat) / latDiff) * h);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            const drawPt = (idx, color) => {
+                const x = pad + ((pathCoords[idx].lon - minLon) / lonDiff) * w, y = pad + (h - ((pathCoords[idx].lat - minLat) / latDiff) * h);
+                ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#fff'; ctx.lineWidth=1.5; ctx.stroke();
+            };
+            drawPt(0, '#3498db'); drawPt(pathCoords.length-1, '#e74c3c');
+        }
+
+        function startSensors() {
+            if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', handleOrientation);
+            else window.addEventListener('deviceorientation', handleOrientation);
+            
+            if ('geolocation' in navigator) navigator.geolocation.watchPosition(handlePosition, null, { enableHighAccuracy: true });
+            
+            window.addEventListener('devicemotion', handleMotion);
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if(isDarkMode) { 
+                document.body.classList.remove('light-mode'); document.getElementById('themeBtn').textContent = '☀️ Light'; 
+                document.querySelectorAll('.theme-text').forEach(e => e.style.color = '#ddd');
+            } else { 
+                document.body.classList.add('light-mode'); document.getElementById('themeBtn').textContent = '🌙 Dark'; 
+                document.querySelectorAll('.theme-text').forEach(e => e.style.color = '#333');
+            }
+        }
+
+        function toggleLock() {
+            isLocked = !isLocked; const btn = document.getElementById('lockBtn');
+            btn.textContent = isLocked ? '🔒 Locked' : '🔓 Lock';
+            if(isLocked) btn.classList.add('active'); else btn.classList.remove('active');
+        }
+
+        function calibrate() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission().then(res => { if (res === 'granted') startSensors(); });
+            } else startSensors();
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loadingMsg').textContent = 'ক্যালিব্রেশন চলছে...';
+            setTimeout(() => { document.getElementById('loading').classList.add('hidden'); alert('কম্পাস ক্যালিব্রেট হয়েছে! 🎯'); }, 1500);
+        }
+
+        function setTarget() {
+            const val = parseInt(document.getElementById('targetInput').value);
+            if (!isNaN(val) && val >= 0 && val <= 360) {
+                userTargetAzimuth = val; document.getElementById('targetMarker').style.display = 'block';
+                document.getElementById('targetMarker').style.transform = `translateX(-50%) rotate(${val}deg)`;
+            } else { userTargetAzimuth = null; document.getElementById('targetMarker').style.display = 'none'; }
+        }
+
+        function toggleTracking() {
+            isTracking = !isTracking; const btn = document.getElementById('trackBtn');
+            if(isTracking) { 
+                btn.classList.add('active'); btn.textContent = 'Stop'; 
+                steps = 0; trackDist = 0;
+                document.getElementById('stepCountVal').innerHTML = `0 <span style="font-size:10px">steps</span>`;
+                document.getElementById('trackVal').innerHTML = `0.00 <span style="font-size:10px">km</span>`;
+            }
+            else { btn.classList.remove('active'); btn.textContent = 'Start'; }
+        }
+
+        function toggleWhistle() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const btn = document.getElementById('whistleBtn');
+            if(isWhistling) { whistleOsc.stop(); isWhistling = false; btn.classList.remove('active'); btn.textContent = '🔊 Loud Siren (Whistle)'; }
+            else {
+                whistleOsc = audioCtx.createOscillator(); whistleOsc.type = 'square'; whistleOsc.frequency.value = 3000;
+                whistleOsc.connect(audioCtx.destination); whistleOsc.start(); isWhistling = true;
+                btn.classList.add('active'); btn.textContent = '🛑 Stop Siren';
+            }
+        }
+
+        async function toggleMorse() {
+            const btn = document.getElementById('morseActionBtn'); const scr = document.getElementById('sosScreen');
+            if(isMorsing) { isMorsing = false; btn.innerHTML = '📡 Transmit Signal'; btn.classList.remove('danger'); scr.style.display = 'none'; return; }
+            let text = document.getElementById('morseInput').value.toUpperCase(); if(!text) return alert("Write something to transmit!");
+            let useLight = document.getElementById('morseLightToggle').checked, useSound = document.getElementById('morseSoundToggle').checked;
+            if(!useLight && !useSound) return alert("Please enable Flash or Sound!");
+
+            isMorsing = true; btn.innerHTML = '🛑 Stop Signal'; btn.classList.add('danger');
+            if(useSound && !audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const morseDict = { 'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',' ':'/' };
+            
+            for(let char of text) {
+                if(!isMorsing) break; let code = morseDict[char]; if(!code) continue;
+                for(let symbol of code) {
+                    if(!isMorsing) break; let duration = (symbol === '.') ? 200 : 600;
+                    if(symbol === '/') { await new Promise(r=>setTimeout(r,600)); continue; }
+                    
+                    if(useLight) { scr.style.display = 'block'; scr.style.opacity = 1; }
+                    let osc; if(useSound) { osc = audioCtx.createOscillator(); osc.type='sine'; osc.frequency.value=800; osc.connect(audioCtx.destination); osc.start(); }
+                    await new Promise(r=>setTimeout(r,duration));
+                    if(useLight) { scr.style.opacity = 0; } if(useSound && osc) { osc.stop(); }
+                    await new Promise(r=>setTimeout(r,200));
+                }
+                await new Promise(r=>setTimeout(r,400));
+            }
+            if(useLight) scr.style.display = 'none';
+            isMorsing = false; btn.innerHTML = '📡 Transmit Signal'; btn.classList.remove('danger');
+        }
+
+        window.addEventListener('load', initApp);
     </script>
 </body>
 </html>
